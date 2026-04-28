@@ -5,9 +5,7 @@ import matplotlib.pyplot as plt
 iris = load_iris()
 X = iris.data 
 Y = iris.target
-## print("Features:\n", X[:5].tolist())  
-## print("Labels:\n", Y[:5].tolist())    
-## print("Target Names: \n", iris.target_names.tolist()) 
+
 
 #Splitting the dataset into training and testing sets.
 
@@ -17,10 +15,6 @@ Y_train = np.hstack([Y[0:30], Y[50:80], Y[100:130]]) #labels (type of flower)
 X_test_raw = np.vstack([X[30:50], X[80:100], X[130:150]])
 Y_test = np.hstack([Y[30:50], Y[80:100], Y[130:150]])
 
-## print("\nX_train shape:", X_train.shape)  # Should be (90, 4)
-## print("Y_train shape:", Y_train.shape)  # Should be (90,)
-## print("X_test shape:", X_test.shape)   # Should be (60, 4)
-## print("Y_test shape:", Y_test.shape)   # Should be (60,)
 
 # ------ Normalising the dataset ---------
 
@@ -29,10 +23,6 @@ std = X_train_raw.std(axis=0)    # std of each column (feature)
 
 X_train = (X_train_raw - mu) / std
 X_test  = (X_test_raw  - mu) / std  
-
-
-## print("\nTraining labels:", Y_train)# should contain 30 samples of each class (0, 1, 2)
-#Helping functions 
 
 def add_bias(X):
     N = X.shape[0]
@@ -132,12 +122,12 @@ def error_rate(y_true, y_pred):
 pred_train = predict(X_train_b, W)
 pred_test  = predict(X_test_b,  W)
 
-print("=== TRAINING SET ===")
+print("TRAINING SET:")
 print("Confusion matrix:")
 print(confusion_matrix(Y_train, pred_train))
 print("Error rate:", error_rate(Y_train, pred_train))
 
-print("\n=== TEST SET ===")
+print("\n TEST SET: ")
 print("Confusion matrix:")
 print(confusion_matrix(Y_test, pred_test))
 print("Error rate:", error_rate(Y_test, pred_test))
@@ -169,12 +159,12 @@ W2, mse_history2 = train(X_train2_b, T_train2, alpha=0.005, epochs=3000)
 pred_train2 = predict(X_train2_b, W2)
 pred_test2  = predict(X_test2_b,  W2)   
 
-print("=== CASE 2: TRAINING SET ===")
+print("CASE 2: TRAINING SET:")
 print("Confusion matrix:")
 print(confusion_matrix(Y_train2, pred_train2))
 print("Error rate:", error_rate(Y_train2, pred_train2))
 
-print("\n=== CASE 2: TEST SET ===")
+print("\nCASE 2: TRAINING SET:")
 print("Confusion matrix:")
 print(confusion_matrix(Y_test2, pred_test2))
 print("Error rate:", error_rate(Y_test2, pred_test2))
@@ -238,7 +228,7 @@ print("Final MSE (3 features):   ", round(mse_history_3f[-1], 4))
 pred_train_3f = predict(X_train_3f_b, W_3f)
 pred_test_3f  = predict(X_test_3f_b,  W_3f)
 
-print("\n=== 3 FEATURES: Removed Sepal Width ===")
+print("\n 3 FEATURES: Removed Sepal Width:")
 
 print("\nTraining confusion matrix:")
 print(confusion_matrix(Y_train, pred_train_3f))
@@ -274,7 +264,7 @@ print("Final MSE (2 features):   ", round(mse_history_2f[-1], 4))
 pred_train_2f = predict(X_train_2f_b, W_2f)
 pred_test_2f  = predict(X_test_2f_b,  W_2f)
 
-print("\n=== 2 FEATURES: Petal Length and Petal Width ===")
+print("\n 2 FEATURES: Petal Length and Petal Width:")
 
 print("\nTraining confusion matrix:")
 print(confusion_matrix(Y_train, pred_train_2f))
@@ -311,7 +301,7 @@ print("Final MSE (1 feature):   ", round(mse_history_1f[-1], 4))
 pred_train_1f = predict(X_train_1f_b, W_1f)
 pred_test_1f  = predict(X_test_1f_b,  W_1f)
 
-print("\n=== 1 FEATURE: Petal Length ===")
+print("\n 1 FEATURE: Petal Length:")
 
 print("\nTraining confusion matrix:")
 print(confusion_matrix(Y_train, pred_train_1f))
