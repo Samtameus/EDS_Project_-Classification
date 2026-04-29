@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 import time 
 import torch  
 from sklearn.datasets import fetch_openml
+from sklearn.cluster import KMeans
 
+## ====== Part 1 =======
 
 # ----- Chosing gpu if available, otherwise using cpu -----
 if torch.backends.mps.is_available():
@@ -152,3 +154,124 @@ print("First 10 correctly classified indices:", correct_idx[:10])
 num_images = 12
 
 plot_images(X_test, Y_test_np, Y_pred_np, correct_idx, num_images=12, title="Correctly classified MNIST test images")
+
+
+## ====== Part 2 =======
+
+M = 64  # number of clusters/templates per class
+
+cluster_templates = []
+cluster_labels = []
+
+start_time = time.time()
+
+for digit in range(10):
+    print(f"Clustering digit {digit}...")
+    # Select all training images from this digit class
+    X_digit = X_norm[Y_train == digit]
+    # K-means clustering for this digit
+
+    kmeans = KMeans(n_clusters=M, random_state=42, n_init=10)
+
+    kmeans.fit(X_digit)
+
+    # Cluster centers become new templates
+    centers = kmeans.cluster_centers_
+
+    # Store templates and their labels
+    cluster_templates.append(centers)
+    cluster_labels.append(np.full(M, digit))
+
+end_time = time.time()
+
+print("K-means clustering time:", round(end_time - start_time, 2), "seconds")
+
+# Combine all class templates into one matrix
+templatev_kmeans = np.vstack(cluster_templates)
+templatelab_kmeans = np.hstack(cluster_labels)
+
+print("templatev_kmeans shape:", templatev_kmeans.shape)
+print("templatelab_kmeans shape:", templatelab_kmeans.shape)
+
+# ----- NN classifier using K-means templates -----
+
+# Convert K-means templates to PyTorch tensors
+
+templatev_kmeans_tensor = torch.tensor(templatev_kmeans, dtype=torch.float32, device=device)
+templatelab_kmeans_tensor = torch.tensor(templatelab_kmeans, dtype=torch.long, device=device)
+
+print("K-means templates moved to:", device)
+print("templatev_kmeans_tensor shape:", templatev_kmeans_tensor.shape)
+print("templatelab_kmeans_tensor shape:", templatelab_kmeans_tensor.shape)
+
+# Classify test images using only the K-means templates
+
+Y_pred_kmeans_tensor = nn_classifier_torch(templatev_kmeans_tensor, templatelab_kmeans_tensor, X_test_tensor, chunk_size=1000)
+
+# Confusion matrix and error rate
+C_kmeans = confusion_matrix_torch(Y_test_tensor, Y_pred_kmeans_tensor)
+err_kmeans = error_rate_torch(Y_test_tensor, Y_pred_kmeans_tensor)
+
+print("Confusion matrix:")
+print(C_kmeans.numpy())
+print("Error rate:", err_kmeans)
+
+# ---- Compare full NN and K-means NN -----
+
+def knn_classifier_torch(X_train_t, Y_train_t, X_test_t, K=7, chunk_size=1000):
+    predictions = []
+
+    start_time = time.time()
+
+    for start in range(0, X_test_t.shape[0], chunk_size):
+        end = min(start + chunk_size, X_test_t.shape[0])
+
+        test_chunk = X_test_t[start:end]
+
+        # Euclidean distances between test images and training templates
+        distances = torch.cdist(test_chunk, X_train_t, p=2)
+
+        # Indices of the K nearest templates
+        nearest_idx = torch.topk(distances, k=K, dim=1, largest=False).indices
+
+        # Labels of the K nearest templates
+        nearest_labels = Y_train_t[nearest_idx]
+
+        # Majority vote without torch.mode, because torch.mode is not implemented on MPS
+        votes = torch.zeros((nearest_labels.shape[0], 10), dtype=torch.int64, device=X_test_t.device)
+
+        for digit in range(10):
+            votes[:, digit] = torch.sum(nearest_labels == digit, dim=1)
+
+        pred_chunk = torch.argmax(votes, dim=1)
+
+        predictions.append(pred_chunk)
+
+        print(f"KNN classified test images {start} to {end}")
+
+    predictions = torch.cat(predictions)
+
+    end_time = time.time()
+    print("KNN classification time:", round(end_time - start_time, 2), "seconds")
+
+    return predictions
+
+
+print("\nRunning KNN classifier with K=7...")
+
+print("\nKNN K=7 on KMeans templates...")
+Y_pred_knn = knn_classifier_torch(templatev_kmeans_tensor, templatelab_kmeans_tensor, X_test_tensor, K=7)
+
+C_knn  = confusion_matrix_torch(Y_test_tensor, Y_pred_knn)
+err_knn = error_rate_torch(Y_test_tensor, Y_pred_knn)
+
+print("KNN K=7 Confusion matrix:")
+print(C_knn.numpy())
+print("KNN K=7 Error rate:", err_knn)
+
+# ----- Final comparison of results -----
+
+print("\nINAL COMPARISON: ")
+print(f"1. NN  full 60k:          {err_test:.4f}  ({err_test*100:.2f}%)")
+print(f"2. NN  640 KMeans:        {err_kmeans:.4f}  ({err_kmeans*100:.2f}%)")
+print(f"3. KNN K=7 640 KMeans:    {err_knn:.4f}  ({err_knn*100:.2f}%)")
