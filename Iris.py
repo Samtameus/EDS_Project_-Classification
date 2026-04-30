@@ -26,7 +26,7 @@ X_test  = (X_test_raw  - mu) / std
 
 def add_bias(X):
     N = X.shape[0]
-    bias = np.ones((N, 1))  # Create a column of ones for
+    bias = np.ones((N, 1))  # Create a column of ones
     return np.hstack([X, bias])
 
 
