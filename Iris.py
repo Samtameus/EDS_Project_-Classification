@@ -182,11 +182,7 @@ axes = [ax0, ax1, ax2, ax3]
 
 for features in range(4):
     for classes in range(3):
-        axes[features].hist(X_train[Y_train == classes, features], 
-                             alpha=0.5, 
-                             label=class_names[classes], 
-                             color=colors[classes],
-                             bins=15 ) 
+        axes[features].hist(X_train[Y_train == classes, features], alpha=0.5, label=class_names[classes], color=colors[classes],bins=15 ) 
     axes[features].set_title(feature_names[features])
     axes[features].set_xlabel('Normalized Value')
     axes[features].set_ylabel('count')

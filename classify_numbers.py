@@ -21,9 +21,6 @@ mnist = fetch_openml('mnist_784', version=1, as_frame=False)
 X = mnist.data.astype(np.float32)
 Y = mnist.target.astype(np.int64)   
 
-print("X shape:", X.shape)  # Should be (70000, 784)
-print("Y shape:", Y.shape)  # Should be (70000,)
-
 
 # ---- Splitting the dataset into training and testing sets -----
 X_train_raw = X[:60000]  # First 60,000 samples for training
@@ -62,8 +59,6 @@ def nn_classifier_torch(X_train_tensor, Y_train_tensor, X_test_tensor, chunk_siz
         
         # Compute distances between the test chunk and the entire training set
         distances = torch.cdist(X_test_chunk, X_train_tensor, p=2)
-        
-        # Find the indices of the nearest neighbors
         nearest_indices = torch.argmin(distances, dim=1)
         
         pred_chunk = Y_train_tensor[nearest_indices]
@@ -225,16 +220,12 @@ def knn_classifier_torch(X_train_t, Y_train_t, X_test_t, K=7, chunk_size=1000):
 
     for start in range(0, X_test_t.shape[0], chunk_size):
         end = min(start + chunk_size, X_test_t.shape[0])
-
         test_chunk = X_test_t[start:end]
 
         # Euclidean distances between test images and training templates
         distances = torch.cdist(test_chunk, X_train_t, p=2)
-
-        # Indices of the K nearest templates
-        nearest_idx = torch.topk(distances, k=K, dim=1, largest=False).indices
-
-        # Labels of the K nearest templates
+   
+        nearest_idx = torch.topk(distances, k=K, dim=1, largest=False).indices  
         nearest_labels = Y_train_t[nearest_idx]
 
         # Majority vote without torch.mode, because torch.mode is not implemented on MPS
@@ -244,13 +235,11 @@ def knn_classifier_torch(X_train_t, Y_train_t, X_test_t, K=7, chunk_size=1000):
             votes[:, digit] = torch.sum(nearest_labels == digit, dim=1)
 
         pred_chunk = torch.argmax(votes, dim=1)
-
         predictions.append(pred_chunk)
 
         print(f"KNN classified test images {start} to {end}")
 
     predictions = torch.cat(predictions)
-
     end_time = time.time()
     print("KNN classification time:", round(end_time - start_time, 2), "seconds")
 
