@@ -306,3 +306,21 @@ print("Training error rate:", error_rate(Y_train, pred_train_1f))
 print("\nTest confusion matrix:")
 print(confusion_matrix(Y_test, pred_test_1f))
 print("Test error rate:", error_rate(Y_test, pred_test_1f))
+
+# ------- Comparing MSE convergence for all cases ----
+
+def plot_mse_comparison(histories, labels):
+    plt.figure(figsize=(8, 4.5))
+
+    for history, label in zip(histories, labels):
+        plt.plot(history, label=label)
+
+    plt.xlabel("Iteration")
+    plt.ylabel("MSE per sample")
+    plt.title("MSE convergence, Iris classifier")
+    plt.grid(True, alpha=0.4)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+plot_mse_comparison(histories=[mse_history, mse_history_3f, mse_history_2f, mse_history_1f], labels=["4 features", "3 features (no SW)", "2 features (PL, PW)", "1 feature (PL)"])
