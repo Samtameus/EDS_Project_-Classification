@@ -165,9 +165,7 @@ for digit in range(10):
     # Select all training images from this digit class
     X_digit = X_norm[Y_train == digit]
     # K-means clustering for this digit
-
     kmeans = KMeans(n_clusters=M, random_state=42, n_init=10)
-
     kmeans.fit(X_digit)
 
     # Cluster centers become new templates
