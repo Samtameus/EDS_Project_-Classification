@@ -148,7 +148,6 @@ std = X_train2_raw.std(axis=0)    # std of each column (feature)
 
 X_train2 = (X_train2_raw - mu) / std
 X_test2  = (X_test2_raw  - mu) / std  
-# -----------------------------------
 
 X_train2_b = add_bias(X_train2)
 X_test2_b = add_bias(X_test2)   
