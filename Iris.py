@@ -307,6 +307,36 @@ print("\nTest confusion matrix:")
 print(confusion_matrix(Y_test, pred_test_1f))
 print("Test error rate:", error_rate(Y_test, pred_test_1f))
 
+
+# ------- Petal length / petal width scatter plot ---- for report
+
+def plot_petal_scatter(X_train, Y_train):
+    class_names = ['Setosa', 'Versicolor', 'Virginica']
+    colors = ['blue', 'orange', 'green']
+
+    plt.figure(figsize=(6, 5))
+
+    for classes in range(3):
+        plt.scatter(
+            X_train[Y_train == classes, 2],   # Petal length
+            X_train[Y_train == classes, 3],   # Petal width
+            label=class_names[classes],
+            color=colors[classes],
+            edgecolor='black',
+            s=25
+        )
+
+    plt.xlabel('Petal length (standardised)')
+    plt.ylabel('Petal width (standardised)')
+    plt.title('Iris training set in petal-length/width plane')
+    plt.grid(True, alpha=0.4)
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
+plot_petal_scatter(X_train, Y_train)
+
 # ------- Comparing MSE convergence for all cases ----
 
 def plot_mse_comparison(histories, labels):
