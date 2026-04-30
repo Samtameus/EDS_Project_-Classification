@@ -5,9 +5,9 @@ import torch
 from sklearn.datasets import fetch_openml
 from sklearn.cluster import KMeans
 
-## ====== Part 1 =======
+## Part1
 
-# ----- Chosing gpu if available, otherwise using cpu -----
+# Chosing gpu if available, otherwise using cpu
 if torch.backends.mps.is_available():
     device = torch.device("mps")
     print("Using Apple Silicon GPU (MPS)")
@@ -16,20 +16,20 @@ else:
     print("Using CPU")
 
 
-# ----- Loading the dataset -----
+# Loading the dataset 
 mnist = fetch_openml('mnist_784', version=1, as_frame=False)
 X = mnist.data.astype(np.float32)
 Y = mnist.target.astype(np.int64)   
 
 
-# ---- Splitting the dataset into training and testing sets -----
+# Splitting the dataset into training and testing sets
 X_train_raw = X[:60000]  # First 60,000 samples for training
 Y_train = Y[:60000]
 
 X_test = X[60000:]   # Last 10,000 samples for testing
 Y_test = Y[60000:]
 
-# ----- Normalising the dataset -----
+# Normalising the dataset
 mu = X_train_raw.mean(axis=0) 
 std = X_train_raw.std(axis=0)    
 std[std == 0] = 1  # To avoid division by zero for features with zero variance
@@ -37,7 +37,7 @@ std[std == 0] = 1  # To avoid division by zero for features with zero variance
 X_norm = (X_train_raw - mu) / std
 X_test_norm = (X_test - mu) / std
 
-# ------ Convert to PyTorch tensors and move to the selected device -----
+# Convert to PyTorch tensors and move to the selected device 
 X_train_tensor = torch.tensor(X_norm, dtype=torch.float32).to(device)
 Y_train_tensor = torch.tensor(Y_train, dtype=torch.long).to(device)
 
@@ -47,7 +47,7 @@ Y_test_tensor = torch.tensor(Y_test, dtype=torch.long).to(device)
 print("data moved to device:", device)
 
 
-# ----- Nearest Neighbor Classifier using Euclidean distance -----
+# Nearest Neighbor Classifier using Euclidean distance 
 
 def nn_classifier_torch(X_train_tensor, Y_train_tensor, X_test_tensor, chunk_size=1000):
     predictions = []
@@ -72,11 +72,11 @@ def nn_classifier_torch(X_train_tensor, Y_train_tensor, X_test_tensor, chunk_siz
 
     return predictions
 
-# --- testing the classifier on the test set ---
+# testing the classifier on the test set
 
 Y_pred_tensor = nn_classifier_torch(X_train_tensor, Y_train_tensor, X_test_tensor, chunk_size=1000)
 
-# --- confusion matrix ---
+# confusion matrix
 
 def confusion_matrix_torch(y_true_t, y_pred_t, num_classes=10):
     C = torch.zeros((num_classes, num_classes), dtype=torch.int64)
@@ -95,13 +95,11 @@ def error_rate_torch(y_true_t, y_pred_t):
 C_test = confusion_matrix_torch(Y_test_tensor, Y_pred_tensor)
 err_test = error_rate_torch(Y_test_tensor, Y_pred_tensor)
 
-
 print("Confusion matrix:")
 print(C_test.numpy())
 print("Error rate:", err_test)
 
-# ----- plotting som missclassifeied images -----
-
+# plotting som missclassifeied images
 
 def plot_images(X, Y_true, Y_pred, indices, num_images=12, title="Images"):
     plt.figure(figsize=(12, 6))
@@ -138,7 +136,7 @@ num_images = 12
 plot_images(X_test, Y_test_np, Y_pred_np, misclassified_idx, num_images=12, title="Misclassified MNIST test images")
 
 
-# ----- Ploting som correctly classified images -----
+# Ploting som correctly classified images
 
 correct_idx = np.where(Y_test_np == Y_pred_np)[0]
 
@@ -151,7 +149,7 @@ num_images = 12
 plot_images(X_test, Y_test_np, Y_pred_np, correct_idx, num_images=12, title="Correctly classified MNIST test images")
 
 
-## ====== Part 2 =======
+## Part 2
 
 M = 64  # number of clusters/templates per class
 
@@ -186,7 +184,7 @@ templatelab_kmeans = np.hstack(cluster_labels)
 print("templatev_kmeans shape:", templatev_kmeans.shape)
 print("templatelab_kmeans shape:", templatelab_kmeans.shape)
 
-# ----- NN classifier using K-means templates -----
+# NN classifier using K-means templates
 
 # Convert K-means templates to PyTorch tensors
 
@@ -209,7 +207,7 @@ print("Confusion matrix:")
 print(C_kmeans.numpy())
 print("Error rate:", err_kmeans)
 
-# ---- Compare full NN and K-means NN -----
+# Compare full NN and K-means NN
 
 def knn_classifier_torch(X_train_t, Y_train_t, X_test_t, K=7, chunk_size=1000):
     predictions = []
@@ -256,7 +254,7 @@ print("KNN K=7 Confusion matrix:")
 print(C_knn.numpy())
 print("KNN K=7 Error rate:", err_knn)
 
-# ----- Final comparison of results -----
+# Final comparison of results
 
 print("\nINAL COMPARISON: ")
 print(f"1. NN  full 60k:          {err_test:.4f}  ({err_test*100:.2f}%)")

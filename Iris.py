@@ -16,7 +16,7 @@ X_test_raw = np.vstack([X[30:50], X[80:100], X[130:150]])
 Y_test = np.hstack([Y[30:50], Y[80:100], Y[130:150]])
 
 
-# ------ Normalising the dataset ---------
+# Normalising the dataset 
 
 mu = X_train_raw.mean(axis=0)  # mean of each column (feature)
 std = X_train_raw.std(axis=0)    # std of each column (feature)
@@ -30,7 +30,7 @@ def add_bias(X):
     return np.hstack([X, bias])
 
 
-def one_hot(labels, num_classes = 3):
+def one_hot(labels, num_classes = 3):     
     N = len(labels)
     T = np.zeros((N, num_classes))
     for i, label in enumerate(labels): 
@@ -38,7 +38,7 @@ def one_hot(labels, num_classes = 3):
     return T                
 
 
-# --------- applying the functions to the training and testing data -----------
+# applying the functions to the training and testing data
 X_train_b = add_bias(X_train)
 X_test_b = add_bias(X_test)
 
@@ -87,7 +87,7 @@ def train(X_b, T, alpha=0.01, epochs=1000):
     return W, mse_history
 
 
-# -------- train the model and get the weights and the history of MSE --------
+# train the model and get the weights and the history of MSE
 
 W, mse_history = train(X_train_b, T_train, alpha=0.005, epochs=3000)
 
@@ -103,7 +103,7 @@ print("Starting MSE:", round(mse_history[0], 4))
 print("Final MSE:   ", round(mse_history[-1], 4))
 
 
-# --------- Confusion matrix -----------------
+# Confusion matrix 
 
 
 def predict(X_b, W):
@@ -133,7 +133,7 @@ print(confusion_matrix(Y_test, pred_test))
 print("Error rate:", error_rate(Y_test, pred_test))
 
 
-# ---------- last 30 of each ----------------- 
+# last 30 of each 
 
 X_train2_raw = np.vstack([X[30:60], X[70:100], X[120:150]])
 Y_train2 = np.hstack([Y[30:60], Y[70:100], Y[120:150]])
@@ -141,7 +141,7 @@ Y_train2 = np.hstack([Y[30:60], Y[70:100], Y[120:150]])
 X_test2_raw = np.vstack([X[0:20], X[50:70], X[100:120]])
 Y_test2 = np.hstack([Y[0:20], Y[50:70], Y[100:120]])
 
-# ------ Normalising the dataset ---------
+# Normalising the dataset
 
 mu = X_train2_raw.mean(axis=0)  # mean of each column (feature)
 std = X_train2_raw.std(axis=0)    # std of each column (feature)
@@ -170,7 +170,7 @@ print(confusion_matrix(Y_test2, pred_test2))
 print("Error rate:", error_rate(Y_test2, pred_test2))
 
 
-# ---------Histogram ----------------
+# Histogram 
 
 feature_names = ['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width']
 
@@ -195,7 +195,7 @@ plt.show()
 print('\n')
 
 
-# ------- Removing the feature with the most overlap ----
+# Removing the feature with the most overlap
 
 X_train_3f = np.delete(X_train, 1 , axis=1)  # remove sepal width
 X_test_3f  = np.delete(X_test, 1 , axis=1)  
@@ -234,7 +234,7 @@ print("\nTest confusion matrix:")
 print(confusion_matrix(Y_test, pred_test_3f))
 print("Test error rate:", error_rate(Y_test, pred_test_3f))
 
-# ------- Traning with only 2 feature ----
+# Traning with only 2 feature 
 
 X_train_2f = np.delete(X_train, [0, 1] , axis=1)  # remove sepal length and sepal width
 X_test_2f  = np.delete(X_test, [0, 1] , axis=1)
@@ -270,7 +270,7 @@ print("\nTest confusion matrix:")
 print(confusion_matrix(Y_test, pred_test_2f))
 print("Test error rate:", error_rate(Y_test, pred_test_2f))
 
-# ------- only 1 feature ----
+# only 1 feature 
 
 X_train_1f = np.delete(X_train, [0, 1, 3] , axis=1)  # remove sepal length, sepal width, and petal length
 X_test_1f  = np.delete(X_test, [0, 1, 3] , axis=1)
@@ -308,7 +308,7 @@ print(confusion_matrix(Y_test, pred_test_1f))
 print("Test error rate:", error_rate(Y_test, pred_test_1f))
 
 
-# ------- Petal length / petal width scatter plot ---- for report
+# Petal length / petal width scatter plot for report
 
 def plot_petal_scatter(X_train, Y_train):
     class_names = ['Setosa', 'Versicolor', 'Virginica']
@@ -337,7 +337,7 @@ def plot_petal_scatter(X_train, Y_train):
 
 plot_petal_scatter(X_train, Y_train)
 
-# ------- Comparing MSE convergence for all cases ----
+# Comparing MSE convergence for all cases 
 
 def plot_mse_comparison(histories, labels):
     plt.figure(figsize=(8, 4.5))
